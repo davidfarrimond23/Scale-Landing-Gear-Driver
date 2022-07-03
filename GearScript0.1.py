@@ -1,8 +1,7 @@
-from machine import Pin, PWM
+rom machine import Pin, PWM
 import time
 import utime
 
-outpin = Pin(22)
 pwm = PWM(Pin(16))
 pwm.freq(200)
 pwm_duty = 3000
@@ -12,20 +11,28 @@ servo.freq(50)
 servo2 = PWM(Pin(18))
 servo2.freq(50)
 
-outpin.value(1)
-
 MID = 1500000
 MIN = 1000000
 MAX = 1900000
 
-input_pin = Pin(5, Pin.IN)
-led = Pin(25, Pin.OUT)
+input_pin1 = Pin(5, Pin.IN)
+input_pin2 = Pin(7, Pin.IN)
 
-def measureFunc(position):
-    while input_pin.value() == 0:
+def measureFunc1():
+    while input_pin1.value() == 0:
         pass
     start = time.ticks_us()
-    while input_pin.value() == 1:
+    while input_pin1.value() == 1:
+        pass
+    end = time.ticks_us()
+    duty = end - start
+    return duty
+
+def measureFunc2():
+    while input_pin2.value() == 0:
+        pass
+    start = time.ticks_us()
+    while input_pin2.value() == 1:
         pass
     end = time.ticks_us()
     duty = end - start
@@ -75,40 +82,23 @@ def movetoMin():
             position2 -= 2000
             if position2 <= MAX:
                 servo2.duty_ns(position2)
-        #print(position1, position2)
+        print(position1, position2)
     return position2
     
 CurrPos = MIN
-minDuty = 0
-while True:
-    minDuty = measureFunc(CurrPos)
-    print(minDuty)
-    """
-    print(minDuty)
-    if minDuty < 1100:
-        led.value(0)
-        CurrPos = movetoMax()
-        print("Moving")
-    if minDuty > 2000:
-        led.value(1)
-        CurrPos = movetoMin()
-        print("Moving")
-    """
+duty1 = 0
+duty2 = 0
+switchPos = None
 
-"""
 while True:
-    dtime = measureFunc(CurrPos)
-    print(dtime)
-    if dtime < 1100:
-        if CurrPos == MIN:
-            led.value(0)
-            CurrPos = movetoMax()
-            print("Moving Up!")
-    elif (dtime > 1100) and (dtime <= 2000):
-        print("Yay")
-    else:
-        if CurrPos == MAX:
-            led.value(1)
-            CurrPos = movetoMin()
-            print("Moving Down!")
-"""
+    if measureFunc2() - measureFunc1() > 400:
+        switchPos = 0
+    elif measureFunc2() - measureFunc1() < -400:
+        switchPos = 1
+        
+    if switchPos == 0 and CurrPos == MAX:
+        CurrPos = movetoMin()
+    elif switchPos == 1 and CurrPos == MIN:
+        CurrPos = movetoMax()
+ 
+    print(measureFunc2() - measureFunc1())
