@@ -1,4 +1,4 @@
-rom machine import Pin, PWM
+from machine import Pin, PWM
 import time
 import utime
 
