@@ -22,25 +22,16 @@ increment = (((MAX/MIN) * incrementTime) / targetTime)
 input_pin1 = Pin(5, Pin.IN)
 input_pin2 = Pin(7, Pin.IN)
 
-def measureFunc1():
-    while input_pin1.value() == 0:
+def measureFunc(inputPin):
+    while inputPin.value() == 0:
         pass
     start = time.ticks_us()
-    while input_pin1.value() == 1:
+    while inputPin.value() == 1:
         pass
     end = time.ticks_us()
-    duty = end - start
+        duty = end - start
     return duty
 
-def measureFunc2():
-    while input_pin2.value() == 0:
-        pass
-    start = time.ticks_us()
-    while input_pin2.value() == 1:
-        pass
-    end = time.ticks_us()
-    duty = end - start
-    return duty
 
 def moveFunc(position):
     if position == MIN:
@@ -75,8 +66,6 @@ def movetoMax():
 def movetoMin():
     position1 = MAX
     position2 = MAX + 100000
-    actualPosition1 = False
-    actualPosition2 = False
     while position2 > MIN:
         time.sleep(incrementTime)
         if position1 > MIN:
@@ -95,9 +84,9 @@ duty2 = 0
 switchPos = None
 
 while True:
-    if measureFunc2() - measureFunc1() > 400:
+    if measureFunc(input_pin2) - measureFunc(input_pin1) > 400:
         switchPos = 0
-    elif measureFunc2() - measureFunc1() < -400:
+    elif measureFunc(input_pin2) - measureFunc(input_pin1) < -400:
         switchPos = 1
         
     if switchPos == 0 and CurrPos == MAX:
@@ -105,4 +94,4 @@ while True:
     elif switchPos == 1 and CurrPos == MIN:
         CurrPos = movetoMax()
  
-    print(measureFunc2() - measureFunc1())
+    print(measureFunc(input_pin2) - measureFunc(input_pin1))
