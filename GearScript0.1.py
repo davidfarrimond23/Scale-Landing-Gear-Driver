@@ -13,7 +13,11 @@ servo2.freq(50)
 
 MID = 1500000
 MIN = 1000000
-MAX = 1900000
+MAX = 2000000
+
+targetTime = 5
+incrementTime = 0.01
+increment = (((MAX/MIN) * incrementTime) / targetTime)
 
 input_pin1 = Pin(5, Pin.IN)
 input_pin2 = Pin(7, Pin.IN)
@@ -58,12 +62,12 @@ def movetoMax():
     position1 = MIN
     position2 = MIN - 100000
     while position2 < MAX:
-        time.sleep(0.01)
+        time.sleep(incrementTime)
         if position1 < MAX:
-            position1 += 2000
+            position1 += increment
             servo.duty_ns(position1)
         if position2 < MAX:
-            position2 += 2000
+            position2 += increment
             if position2 >= MIN:
                 servo2.duty_ns(position2)
     return position2
@@ -74,12 +78,12 @@ def movetoMin():
     actualPosition1 = False
     actualPosition2 = False
     while position2 > MIN:
-        time.sleep(0.01)
+        time.sleep(incrementTime)
         if position1 > MIN:
-            position1 -= 2000
+            position1 -= increment
             servo.duty_ns(position1)
         if position2 > MIN:
-            position2 -= 2000
+            position2 -= increment
             if position2 <= MAX:
                 servo2.duty_ns(position2)
         print(position1, position2)
